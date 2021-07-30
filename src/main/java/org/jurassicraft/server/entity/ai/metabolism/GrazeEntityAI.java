@@ -30,7 +30,6 @@ public class GrazeEntityAI extends EntityAIBase {
     protected DinosaurEntity dinosaur;
     protected volatile BlockPos target;
     protected volatile BlockPos moveTarget;
-    protected volatile boolean feederExists = false;
     private int counter;
     private World world;
     private volatile BlockPos previousTarget;
@@ -115,26 +114,8 @@ public class GrazeEntityAI extends EntityAIBase {
 	}
     
 	protected boolean feederExists() {
-
-		if (tpe.getActiveCount() < 2) {
-			World world = this.dinosaur.world;
-			try {
-				tpe.execute(new ThreadRunnable(this, this.dinosaur) {
-					@Override
-					public void run() {
-						synchronized (world) {
-							synchronized (this.ai) {
-								this.ai.feederExists = this.entity.getClosestFeeder() != null;
-							}
-						}
-					}
-				});
-			} catch (RejectedExecutionException e) {
-
-			}
-		}
-
-		return this.feederExists;
+		// getClosestFeeder is already rate limited & cached, so calling it shouldn't have much overhead
+		return this.dinosaur.getClosestFeeder() != null;
 	}
 
     @Override
