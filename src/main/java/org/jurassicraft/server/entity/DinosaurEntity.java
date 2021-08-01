@@ -2004,6 +2004,7 @@ public abstract class DinosaurEntity extends EntityCreature implements IEntityAd
     public BlockPos getClosestFeeder() {
         if (this.ticksExisted - this.feederSearchTick > 200) {
             this.feederSearchTick = this.ticksExisted;
+            long startNS = System.nanoTime();
             OnionTraverser traverser = new OnionTraverser(this.getPosition(), 32);
             for (BlockPos pos : traverser) {
                 IBlockState state = this.world.getBlockState(pos);
@@ -2014,12 +2015,16 @@ public abstract class DinosaurEntity extends EntityCreature implements IEntityAd
                         if (feeder.canFeedDinosaur(this) && feeder.getFeeding() == null && feeder.openAnimation == 0) {
                             Path path = this.getNavigator().getPathToPos(pos);
                             if (path != null && path.getCurrentPathLength() != 0) {
-                                return this.closestFeeder = pos;
+                                // return this.closestFeeder = pos;
+                                // TODO restore this version ^
+                                this.closestFeeder = pos;
                             }
                         }
                     }
                 }
             }
+            long endNS = System.nanoTime();
+            LOGGER.info("getClosestFeeder on {} at {} took {} nanos (approx. {} ms)", this.dinosaur.getIdentifier(), this.getPosition(), endNS - startNS, (endNS - startNS) / 1000000);
         }
         return this.closestFeeder;
     }
